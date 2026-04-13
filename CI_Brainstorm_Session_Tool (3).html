@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI Brainstorm Session — Red Software</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-deep: #0D3B6E;
+    --blue-mid: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-pale: #F0F7FF;
+    --green-deep: #27500A;
+    --green-bg: #EAF3DE;
+    --amber-deep: #633806;
+    --amber-bg: #FAEEDA;
+    --purple-deep: #3C3489;
+    --purple-bg: #EEEDFE;
+    --red-deep: #791F1F;
+    --red-bg: #FCEBEB;
+    --teal-deep: #085041;
+    --teal-bg: #E1F5EE;
+    --text: #1A1A2E;
+    --text-muted: #5A6480;
+    --text-faint: #9AA3BC;
+    --bg: #F4F7FC;
+    --surface: #FFFFFF;
+    --border: rgba(13,59,110,0.12);
+    --border-mid: rgba(13,59,110,0.2);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(13,59,110,0.08), 0 4px 16px rgba(13,59,110,0.06);
+    --shadow-sm: 0 1px 2px rgba(13,59,110,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .app-header {
+    background: var(--blue-deep);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    min-height: 60px;
+  }
+  .app-header-left { display: flex; align-items: center; gap: 14px; }
+  .app-logo {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600; color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .app-title { font-size: 15px; font-weight: 600; color: #fff; }
+  .app-subtitle { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 1px; }
+  .app-header-right { display: flex; align-items: center; gap: 8px; }
+  .header-input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 5px 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    width: 130px;
+  }
+  .header-input::placeholder { color: rgba(255,255,255,0.4); }
+  .header-input:focus { outline: none; border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
+  .phase-badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.9);
+    white-space: nowrap;
+  }
+
+  /* LAYOUT */
+  .app-body { max-width: 960px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+  /* TIMER BAR */
+  .timer-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    flex-wrap: wrap;
+  }
+  .timer-phase { font-size: 13px; color: var(--text-muted); flex: 1; min-width: 140px; }
+  .timer-phase strong { color: var(--text); font-weight: 500; }
+  .timer-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px; font-weight: 500;
+    color: var(--blue-mid);
+    min-width: 56px;
+  }
+  .timer-val.urgent { color: #C0392B; }
+  .t-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    padding: 5px 14px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .t-btn:hover { background: var(--bg); }
+  .t-btn.primary { background: var(--blue-deep); color: #fff; border-color: var(--blue-deep); }
+  .t-btn.primary:hover { background: var(--blue-mid); border-color: var(--blue-mid); }
+  .progress-bar-wrap { width: 100%; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--blue-mid); border-radius: 2px; transition: width 1s linear; }
+
+  /* MEMBER BAR */
+  .member-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 1.25rem; flex-wrap: wrap;
+  }
+  .member-bar label { font-size: 13px; color: var(--text-muted); }
+  select.name-sel, input.name-inp {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  select.name-sel:focus, input.name-inp:focus { outline: none; border-color: var(--blue-mid); }
+  .sm-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .sm-btn:hover { background: var(--bg); color: var(--text); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 400;
+    padding: 8px 18px;
+    border: none; background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--blue-mid); border-bottom-color: var(--blue-mid); font-weight: 500; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 1.5rem; }
+  .section-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 10px; gap: 8px;
+  }
+  .section-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .section-hint { font-size: 12px; color: var(--text-faint); margin-top: 1px; }
+  .section-count { font-size: 12px; color: var(--text-faint); white-space: nowrap; padding-top: 2px; }
+
+  /* CARDS */
+  .cards-list { display: flex; flex-direction: column; gap: 6px; min-height: 10px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .card:hover { border-color: var(--border-mid); box-shadow: var(--shadow); }
+  .card-body { flex: 1; min-width: 0; }
+  .card-text { font-size: 13px; color: var(--text); line-height: 1.5; word-break: break-word; }
+  .card-meta { font-size: 11px; color: var(--text-faint); margin-top: 5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .card-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+  .empty-state { font-size: 13px; color: var(--text-faint); padding: 14px 0; text-align: center; font-style: italic; }
+
+  /* VOTE BTN */
+  .vote-btn {
+    display: flex; align-items: center; gap: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    padding: 3px 9px;
+    border: 1px solid var(--border-mid);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .vote-btn:hover { background: var(--blue-light); border-color: #B5D4F4; color: var(--blue-mid); }
+  .vote-btn.voted { background: var(--blue-light); border-color: #B5D4F4; color: var(--blue-mid); }
+  .vote-btn svg { flex-shrink: 0; }
+
+  /* PRIORITY */
+  .pri-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+  .pri-high { background: var(--red-bg); color: var(--red-deep); }
+  .pri-med  { background: var(--amber-bg); color: var(--amber-deep); }
+  .pri-low  { background: var(--green-bg); color: var(--green-deep); }
+
+  /* CATEGORY TAGS */
+  .cat-tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+
+  /* DELETE BTN */
+  .del-btn {
+    font-size: 12px; padding: 2px 7px;
+    border: none; background: transparent;
+    color: var(--text-faint); cursor: pointer; border-radius: 4px;
+    transition: all 0.15s;
+  }
+  .del-btn:hover { background: var(--red-bg); color: var(--red-deep); }
+
+  /* INPUT AREA */
+  .input-area {
+    margin-top: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .idea-input {
+    font-family: 'DM Sans', sans-serif;
+    flex: 1; font-size: 13px;
+    padding: 7px 12px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .idea-input::placeholder { color: var(--text-faint); }
+  .idea-input:focus { outline: none; border-color: var(--blue-mid); background: #fff; }
+  .add-idea-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    background: var(--blue-deep);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .add-idea-btn:hover { background: var(--blue-mid); }
+
+  /* CAT PICKER */
+  .cat-picker { display: flex; gap: 5px; flex-wrap: wrap; }
+  .cat-opt {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s;
+    background: var(--bg);
+    color: var(--text-muted);
+  }
+
+  /* STATS */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .stat-num { font-size: 28px; font-weight: 600; color: var(--blue-mid); line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .filter-lbl { font-size: 12px; color: var(--text-faint); }
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border-mid);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .filter-btn:hover { background: var(--bg); color: var(--text); }
+  .filter-btn.active { background: var(--blue-deep); color: #fff; border-color: var(--blue-deep); }
+
+  /* SUMMARY */
+  .summary-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .summary-block-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sum-row {
+    font-size: 13px; color: var(--text);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .sum-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .sum-text { flex: 1; min-width: 120px; font-size: 13px; }
+  .sum-meta { font-size: 11px; color: var(--text-faint); }
+  .owner-inp {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; padding: 3px 8px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    width: 110px;
+  }
+  .owner-inp:focus { outline: none; border-color: var(--blue-mid); }
+
+  /* ACTION BUTTONS */
+  .action-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.25rem; }
+  .action-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    padding: 8px 18px;
+    border: 1px solid var(--border-mid);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s;
+  }
+  .action-btn:hover { background: var(--bg); border-color: var(--blue-mid); color: var(--blue-mid); }
+  .action-btn.primary { background: var(--blue-deep); color: #fff; border-color: var(--blue-deep); }
+  .action-btn.primary:hover { background: var(--blue-mid); border-color: var(--blue-mid); }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--blue-light);
+    border: 1px solid #B5D4F4;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px; color: #0C447C;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  /* GAP ANALYSIS */
+  .gap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+  .gap-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    background: var(--surface);
+    text-align: center;
+  }
+  .gap-card.empty { border-color: #F09595; background: var(--red-bg); }
+  .gap-card.low { border-color: #FAC775; background: var(--amber-bg); }
+  .gap-card.good { border-color: #C0DD97; background: var(--green-bg); }
+  .gap-cat { font-size: 11px; font-weight: 500; margin-bottom: 4px; }
+  .gap-num { font-size: 22px; font-weight: 600; }
+  .gap-lbl { font-size: 10px; margin-top: 2px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: var(--blue-deep); color: #fff;
+    font-size: 13px; font-weight: 500;
+    padding: 8px 20px; border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    white-space: nowrap; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 600px) {
+    .app-header { padding: 0.75rem 1rem; }
+    .app-body { padding: 1rem 1rem 4rem; }
+    .stat-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .stat-num { font-size: 22px; }
+    .header-input { width: 100px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-left">
+    <div class="app-logo">CI</div>
+    <div>
+      <div class="app-title">CI Brainstorm Session</div>
+      <div class="app-subtitle">Red Software — Continuous Improvement Planning</div>
+    </div>
+  </div>
+  <div class="app-header-right">
+    <input class="header-input" id="sessionDate" placeholder="Session date">
+    <input class="header-input" id="facilitator" placeholder="Facilitator">
+    <span class="phase-badge" id="phaseBadge">Ideation</span>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('ideation',this)">Ideation</button>
+    <button class="tab-btn" onclick="switchTab('votes',this)">Dot voting</button>
+    <button class="tab-btn" onclick="switchTab('gap',this)">Gap analysis</button>
+    <button class="tab-btn" onclick="switchTab('summary',this)">Summary</button>
+  </div>
+
+  <!-- IDEATION -->
+  <div id="tab-ideation">
+    <div class="timer-bar">
+      <div class="timer-phase"><strong id="timerPhaseName">Silent ideation</strong> — write ideas independently, no discussion yet</div>
+      <div class="timer-val" id="timerVal">10:00</div>
+      <div class="progress-bar-wrap" style="flex:1;min-width:60px"><div class="progress-bar-fill" id="progressFill" style="width:100%"></div></div>
+      <button class="t-btn primary" id="timerToggle" onclick="toggleTimer()">Start</button>
+      <button class="t-btn" onclick="nextPhase()">Next phase ›</button>
+    </div>
+
+    <div class="member-bar">
+      <label>Your name:</label>
+      <select class="name-sel" id="globalAuthor"><option value="">— select —</option></select>
+      <button class="sm-btn" onclick="addMember()">+ Add member</button>
+    </div>
+
+    <div id="sections-container"></div>
+  </div>
+
+  <!-- DOT VOTING -->
+  <div id="tab-votes" style="display:none">
+    <div class="info-box">Each participant gets <strong>5 votes</strong>. Place multiple votes on a single item if you feel strongly. Gut instinct — no discussion during voting.</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="v-total">0</div><div class="stat-label">Total ideas</div></div>
+      <div class="stat-card"><div class="stat-num" id="v-votes">0</div><div class="stat-label">Votes cast</div></div>
+      <div class="stat-card"><div class="stat-num" id="v-participants">0</div><div class="stat-label">Participants</div></div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-lbl">Filter by category:</span>
+      <button class="filter-btn active" onclick="setVoteFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setVoteFilter('process',this)">Process</button>
+      <button class="filter-btn" onclick="setVoteFilter('tooling',this)">Tooling</button>
+      <button class="filter-btn" onclick="setVoteFilter('docs',this)">Docs</button>
+      <button class="filter-btn" onclick="setVoteFilter('comms',this)">Comms</button>
+      <button class="filter-btn" onclick="setVoteFilter('debt',this)">Tech Debt</button>
+      <button class="filter-btn" onclick="setVoteFilter('team',this)">Team</button>
+    </div>
+    <div id="vote-list"></div>
+  </div>
+
+  <!-- GAP ANALYSIS -->
+  <div id="tab-gap" style="display:none">
+    <div class="info-box">Scan for categories with zero or very few ideas. Prompt the group: <em>"We have nothing under [X] — does that feel right?"</em></div>
+    <div class="gap-grid" id="gap-grid"></div>
+    <div style="margin-top:1.5rem">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Prompt starters for blind spots</div>
+      <div id="gap-prompts" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div id="tab-summary" style="display:none">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="s-ideas">0</div><div class="stat-label">Total ideas</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-high">0</div><div class="stat-label">High priority</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-owners">0</div><div class="stat-label">Owners assigned</div></div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-lbl">Group by:</span>
+      <button class="filter-btn active" onclick="setSummaryGroup('prompt',this)">Prompt</button>
+      <button class="filter-btn" onclick="setSummaryGroup('category',this)">Category</button>
+      <button class="filter-btn" onclick="setSummaryGroup('priority',this)">Priority</button>
+    </div>
+    <div id="summary-list"></div>
+    <div class="action-row">
+      <button class="action-btn primary" onclick="exportSummary()">Export as .txt</button>
+      <button class="action-btn" onclick="exportCSV()">Export as .csv</button>
+      <button class="action-btn" onclick="copyToClipboard()">Copy to clipboard</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = [
+  {id:'process', label:'Process / Workflow',       bg:'#E6F1FB', text:'#0C447C', border:'#185FA5'},
+  {id:'tooling', label:'Tooling / Automation',      bg:'#EAF3DE', text:'#27500A', border:'#3B6D11'},
+  {id:'docs',    label:'Documentation / Knowledge', bg:'#FAEEDA', text:'#633806', border:'#854F0B'},
+  {id:'comms',   label:'Communication / Handoffs',  bg:'#EEEDFE', text:'#3C3489', border:'#534AB7'},
+  {id:'debt',    label:'Tech Debt',                 bg:'#FCEBEB', text:'#791F1F', border:'#A32D2D'},
+  {id:'team',    label:'Team / Skills',             bg:'#E1F5EE', text:'#085041', border:'#0F6E56'},
+];
+
+const SECTIONS = [
+  {id:'slowdown', label:"What's slowing us down?",     hint:"Friction, bottlenecks, manual steps, recurring errors"},
+  {id:'missing',  label:"What's missing?",             hint:"Gaps in tooling, docs, process coverage, handoffs"},
+  {id:'fragile',  label:"What's working but fragile?", hint:"Works but manual, undocumented, or won't scale"},
+  {id:'other',    label:"Other ideas",                  hint:"Anything else for the CI backlog"},
+];
+
+const PHASES = [
+  {label:'Silent ideation',     secs:600,  hint:'Write ideas independently — no discussion yet'},
+  {label:'Grouping & theming',  secs:900,  hint:'Cluster similar items, assign categories'},
+  {label:'Rapid review round',  secs:1200, hint:'Each person explains their items — clarification only'},
+  {label:'Dot voting',          secs:600,  hint:'Cast votes on highest-priority items'},
+  {label:'Gap analysis',        secs:900,  hint:'Scan categories with zero coverage'},
+  {label:'Action assignment',   secs:900,  hint:'Assign owner + effort to every new item'},
+];
+
+const GAP_PROMPTS = {
+  process: "We have few process items — are there any workflow steps causing friction we haven't named?",
+  tooling: "We have few tooling items — is there anything we're doing manually that should be automated?",
+  docs:    "We have few documentation items — what would a new team member struggle to find?",
+  comms:   "We have few comms items — where do handoffs break down or create confusion?",
+  debt:    "We have few tech debt items — what are we tolerating in the codebase that we shouldn't be?",
+  team:    "We have few team items — are there skill gaps or onboarding needs we're not addressing?",
+};
+
+let cards = {slowdown:[],missing:[],fragile:[],other:[]};
+let members = ['PM','Dev','Ops','HR'];
+let selectedCat = {slowdown:null,missing:null,fragile:null,other:null};
+let timerInterval = null, timerSecs = 600, timerTotal = 600, timerRunning = false, phaseIdx = 0;
+let voteFilter = 'all', summaryGroup = 'prompt';
+
+function uid(){ return Math.random().toString(36).slice(2,8); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function getAuthor(){ return document.getElementById('globalAuthor').value || 'Anon'; }
+function getCat(id){ return CATS.find(c=>c.id===id)||null; }
+function pri(v){ return v>=3?'high':v>=1?'med':'low'; }
+function priLabel(v){ return v>=3?'High':v>=1?'Medium':'Low'; }
+function priClass(v){ return 'pri-'+pri(v); }
+
+function catTagHtml(catId){
+  if(!catId) return '';
+  const c=getCat(catId);
+  if(!c) return '';
+  return `<span class="cat-tag" style="background:${c.bg};color:${c.text}">${c.label}</span>`;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Members
+function renderMemberSelect(){
+  const sel=document.getElementById('globalAuthor');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— select —</option>';
+  members.forEach(m=>{
+    const o=document.createElement('option');
+    o.value=m; o.textContent=m;
+    if(m===cur) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+
+function addMember(){
+  const name=prompt('Enter team member name:');
+  if(name&&name.trim()&&!members.includes(name.trim())){
+    members.push(name.trim());
+    renderMemberSelect();
+    document.getElementById('globalAuthor').value=name.trim();
+    showToast(name.trim()+' added');
+  }
+}
+
+// Sections
+function renderSections(){
+  const c=document.getElementById('sections-container');
+  c.innerHTML='';
+  SECTIONS.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='section';
+    div.innerHTML=`
+      <div class="section-head">
+        <div>
+          <div class="section-title">${s.label}</div>
+          <div class="section-hint">${s.hint}</div>
+        </div>
+        <span class="section-count" id="cnt-${s.id}">${cards[s.id].length} idea${cards[s.id].length!==1?'s':''}</span>
+      </div>
+      <div class="cards-list" id="grid-${s.id}"></div>
+      <div class="input-area">
+        <div class="input-row">
+          <input class="idea-input" id="inp-${s.id}" placeholder="Type an idea and press Enter…" onkeydown="if(event.key==='Enter')addCard('${s.id}')">
+          <button class="add-idea-btn" onclick="addCard('${s.id}')">Add</button>
+        </div>
+        <div class="cat-picker" id="catpick-${s.id}"></div>
+      </div>`;
+    c.appendChild(div);
+    renderCatPicker(s.id);
+    renderCards(s.id);
+  });
+}
+
+function renderCatPicker(sid){
+  const el=document.getElementById('catpick-'+sid);
+  if(!el) return;
+  el.innerHTML='';
+  CATS.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='cat-opt';
+    btn.textContent=cat.label;
+    const sel=selectedCat[sid]===cat.id;
+    if(sel){
+      btn.style.background=cat.bg;
+      btn.style.color=cat.text;
+      btn.style.borderColor=cat.border;
+    } else {
+      btn.style.borderColor=cat.border+'55';
+      btn.style.color='var(--text-muted)';
+    }
+    btn.onclick=()=>{
+      selectedCat[sid]=sel?null:cat.id;
+      renderCatPicker(sid);
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderCards(sid){
+  const grid=document.getElementById('grid-'+sid);
+  if(!grid) return;
+  if(!cards[sid].length){
+    grid.innerHTML='<div class="empty-state">No ideas yet — add the first one below</div>';
+    return;
+  }
+  grid.innerHTML='';
+  [...cards[sid]].sort((a,b)=>b.votes-a.votes).forEach(card=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`
+      <div class="card-body">
+        <div class="card-text">${esc(card.text)}</div>
+        <div class="card-meta">
+          by <strong>${esc(card.author)}</strong>
+          ${catTagHtml(card.cat)}
+          ${!card.cat?'<span style="font-style:italic;color:var(--text-faint)">uncategorised</span>':''}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="vote-btn${card.myVoted?' voted':''}" onclick="voteCard('${sid}','${card.id}',this)">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.5 3h3l-2.4 1.8.9 3L6 7.2 3 8.8l.9-3L1.5 4h3z" fill="currentColor"/></svg>
+          <span>${card.votes}</span>
+        </button>
+        <span class="pri-badge ${priClass(card.votes)}">${priLabel(card.votes)}</span>
+        <button class="del-btn" title="Remove" onclick="deleteCard('${sid}','${card.id}')">✕</button>
+      </div>`;
+    grid.appendChild(d);
+  });
+}
+
+function addCard(sid){
+  const inp=document.getElementById('inp-'+sid);
+  const text=inp.value.trim();
+  if(!text) return;
+  cards[sid].push({id:uid(),text,author:getAuthor(),cat:selectedCat[sid]||null,votes:0,myVoted:false,owner:''});
+  inp.value='';
+  inp.focus();
+  renderCards(sid);
+  const cnt=document.getElementById('cnt-'+sid);
+  if(cnt) cnt.textContent=`${cards[sid].length} idea${cards[sid].length!==1?'s':''}`;
+  updateStats();
+}
+
+function deleteCard(sid,cid){
+  cards[sid]=cards[sid].filter(c=>c.id!==cid);
+  renderCards(sid);
+  const cnt=document.getElementById('cnt-'+sid);
+  if(cnt) cnt.textContent=`${cards[sid].length} idea${cards[sid].length!==1?'s':''}`;
+  updateStats();
+}
+
+function voteCard(sid,cid,btn){
+  const card=cards[sid].find(c=>c.id===cid);
+  if(!card) return;
+  card.votes++; card.myVoted=true;
+  renderCards(sid);
+  updateStats();
+}
+
+// All cards helper
+function allCards(){
+  return Object.entries(cards).flatMap(([sid,arr])=>arr.map(c=>({...c,sid})));
+}
+
+function setText(id,val){
+  const el=document.getElementById(id);
+  if(el) el.textContent=val;
+}
+
+function updateStats(){
+  const all=allCards();
+  const totalVotes=all.reduce((a,c)=>a+c.votes,0);
+  const owners=all.filter(c=>c.owner).length;
+  const high=all.filter(c=>c.votes>=3).length;
+  setText('v-total',all.length);
+  setText('v-votes',totalVotes);
+  setText('v-participants',members.length);
+  setText('s-ideas',all.length);
+  setText('s-high',high);
+  setText('s-owners',owners);
+  renderVoteList();
+  renderGap();
+  renderSummary();
+}
+
+// Vote list
+function setVoteFilter(val,btn){
+  voteFilter=val;
+  document.querySelectorAll('#tab-votes .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVoteList();
+}
+
+function renderVoteList(){
+  const el=document.getElementById('vote-list');
+  if(!el) return;
+  let items=allCards();
+  if(voteFilter!=='all') items=items.filter(c=>c.cat===voteFilter);
+  items.sort((a,b)=>b.votes-a.votes);
+  if(!items.length){el.innerHTML='<div class="empty-state" style="padding:2rem 0">No ideas'+(voteFilter!=='all'?' in this category':'')+' yet.</div>';return;}
+  el.innerHTML='';
+  const list=document.createElement('div'); list.className='cards-list';
+  items.forEach(card=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`
+      <div class="card-body">
+        <div class="card-text">${esc(card.text)}</div>
+        <div class="card-meta">by <strong>${esc(card.author)}</strong> ${catTagHtml(card.cat)} <span class="sum-meta">${SECTIONS.find(s=>s.id===card.sid)?.label||''}</span></div>
+      </div>
+      <div class="card-actions">
+        <button class="vote-btn${card.myVoted?' voted':''}" onclick="voteAll('${card.sid}','${card.id}')">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.5 3h3l-2.4 1.8.9 3L6 7.2 3 8.8l.9-3L1.5 4h3z" fill="currentColor"/></svg>
+          <span>${card.votes}</span>
+        </button>
+        <span class="pri-badge ${priClass(card.votes)}">${priLabel(card.votes)}</span>
+      </div>`;
+    list.appendChild(d);
+  });
+  el.appendChild(list);
+}
+
+function voteAll(sid,cid){
+  const card=cards[sid].find(c=>c.id===cid);
+  if(!card) return;
+  card.votes++; card.myVoted=true;
+  updateStats();
+}
+
+// Gap analysis
+function renderGap(){
+  const all=allCards();
+  const grid=document.getElementById('gap-grid');
+  const prompts=document.getElementById('gap-prompts');
+  if(!grid||!prompts||!grid.parentElement) return;
+  grid.innerHTML=''; prompts.innerHTML='';
+  CATS.forEach(cat=>{
+    const n=all.filter(c=>c.cat===cat.id).length;
+    const cls=n===0?'empty':n<=1?'low':'good';
+    const textColor=n===0?'#791F1F':n<=1?'#633806':'#27500A';
+    const d=document.createElement('div'); d.className='gap-card '+cls;
+    d.innerHTML=`
+      <div class="gap-cat" style="color:${textColor}">${cat.label}</div>
+      <div class="gap-num" style="color:${textColor}">${n}</div>
+      <div class="gap-lbl" style="color:${textColor}">${n===0?'⚠ Empty':n<=1?'Low coverage':'Good'}</div>`;
+    grid.appendChild(d);
+    if(n<=1 && GAP_PROMPTS[cat.id]){
+      const p=document.createElement('div');
+      p.style.cssText='font-size:13px;color:var(--text);padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)';
+      p.innerHTML=`<span style="font-size:11px;font-weight:600;color:${cat.border};text-transform:uppercase;letter-spacing:0.4px">${cat.label}</span><br><em style="color:var(--text-muted)">"${GAP_PROMPTS[cat.id]}"</em>`;
+      prompts.appendChild(p);
+    }
+  });
+  if(!prompts.children.length){
+    prompts.innerHTML='<div style="font-size:13px;color:var(--text-faint);font-style:italic">All categories have good coverage — no obvious gaps.</div>';
+  }
+}
+
+// Summary
+function setSummaryGroup(val,btn){
+  summaryGroup=val;
+  document.querySelectorAll('#tab-summary .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSummary();
+}
+
+function sumCardEl(card, showOwner){
+  const d=document.createElement('div'); d.className='sum-row';
+  d.innerHTML=`
+    <span class="sum-text">${esc(card.text)}</span>
+    ${catTagHtml(card.cat)}
+    <span class="pri-badge ${priClass(card.votes)}">${priLabel(card.votes)}</span>
+    <span class="sum-meta">${card.votes}v · ${esc(card.author)}</span>
+    ${showOwner?`<input class="owner-inp" placeholder="Assign owner" value="${esc(card.owner)}" onchange="setOwner('${card.sid}','${card.id}',this.value)">`:''}`;
+  return d;
+}
+
+function renderSummary(){
+  const el=document.getElementById('summary-list');
+  if(!el||!el.parentElement) return;
+  el.innerHTML='';
+  const all=allCards().sort((a,b)=>b.votes-a.votes);
+  if(!all.length){el.innerHTML='<div class="empty-state" style="padding:2rem 0">No ideas yet.</div>';return;}
+
+  if(summaryGroup==='prompt'){
+    SECTIONS.forEach(s=>{
+      const sc=all.filter(c=>c.sid===s.id);
+      if(!sc.length) return;
+      const div=document.createElement('div'); div.className='summary-block';
+      div.innerHTML=`<div class="summary-block-title">${s.label} <span style="font-size:12px;font-weight:400;color:var(--text-faint)">${sc.length} idea${sc.length!==1?'s':''}</span></div>`;
+      sc.forEach(c=>div.appendChild(sumCardEl(c,true)));
+      el.appendChild(div);
+    });
+  } else if(summaryGroup==='category'){
+    const noCat=all.filter(c=>!c.cat);
+    CATS.forEach(cat=>{
+      const sc=all.filter(c=>c.cat===cat.id);
+      if(!sc.length) return;
+      const div=document.createElement('div'); div.className='summary-block';
+      div.innerHTML=`<div class="summary-block-title"><span class="cat-tag" style="background:${cat.bg};color:${cat.text}">${cat.label}</span> <span style="font-size:12px;font-weight:400;color:var(--text-faint)">${sc.length} idea${sc.length!==1?'s':''}</span></div>`;
+      sc.forEach(c=>div.appendChild(sumCardEl(c,true)));
+      el.appendChild(div);
+    });
+    if(noCat.length){
+      const div=document.createElement('div'); div.className='summary-block';
+      div.innerHTML=`<div class="summary-block-title" style="color:var(--text-faint)">Uncategorised</div>`;
+      noCat.forEach(c=>div.appendChild(sumCardEl(c,true)));
+      el.appendChild(div);
+    }
+  } else {
+    [['High',c=>c.votes>=3],['Medium',c=>c.votes>=1&&c.votes<3],['Low',c=>c.votes===0]].forEach(([label,fn])=>{
+      const sc=all.filter(fn);
+      if(!sc.length) return;
+      const cls=label==='High'?'pri-high':label==='Medium'?'pri-med':'pri-low';
+      const div=document.createElement('div'); div.className='summary-block';
+      div.innerHTML=`<div class="summary-block-title"><span class="pri-badge ${cls}">${label} priority</span> <span style="font-size:12px;font-weight:400;color:var(--text-faint)">${sc.length} idea${sc.length!==1?'s':''}</span></div>`;
+      sc.forEach(c=>div.appendChild(sumCardEl(c,true)));
+      el.appendChild(div);
+    });
+  }
+}
+
+function setOwner(sid,cid,val){
+  const card=cards[sid].find(c=>c.id===cid);
+  if(card){card.owner=val;updateStats();}
+}
+
+// Tabs
+function switchTab(name,btn){
+  ['ideation','votes','gap','summary'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===name?'block':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(name!=='ideation') updateStats();
+  const badge=document.getElementById('phaseBadge');
+  if(name==='votes') badge.textContent='Dot voting';
+  else if(name==='gap') badge.textContent='Gap analysis';
+  else if(name==='summary') badge.textContent='Summary';
+  else badge.textContent=PHASES[phaseIdx].label;
+}
+
+// Timer
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerInterval); timerRunning=false;
+    document.getElementById('timerToggle').textContent='Resume';
+  } else {
+    timerRunning=true;
+    document.getElementById('timerToggle').textContent='Pause';
+    timerInterval=setInterval(()=>{
+      timerSecs--;
+      if(timerSecs<=0){
+        timerSecs=0; clearInterval(timerInterval); timerRunning=false;
+        document.getElementById('timerToggle').textContent='Start';
+        showToast('Time is up!');
+      }
+      updateTimerDisplay();
+    },1000);
+  }
+}
+
+function nextPhase(){
+  clearInterval(timerInterval); timerRunning=false;
+  document.getElementById('timerToggle').textContent='Start';
+  phaseIdx=(phaseIdx+1)%PHASES.length;
+  const phase=PHASES[phaseIdx];
+  timerSecs=phase.secs; timerTotal=phase.secs;
+  document.getElementById('timerPhaseName').textContent=phase.label;
+  document.getElementById('timerPhase').innerHTML=`<strong>${phase.label}</strong> — ${phase.hint}`;
+  document.getElementById('phaseBadge').textContent=phase.label;
+  updateTimerDisplay();
+  showToast('Phase: '+phase.label);
+  if(phase.label==='Dot voting') document.querySelectorAll('.tab-btn')[1].click();
+  else if(phase.label==='Gap analysis') document.querySelectorAll('.tab-btn')[2].click();
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerSecs/60);
+  const s=timerSecs%60;
+  const el=document.getElementById('timerVal');
+  el.textContent=m+':'+(s<10?'0':'')+s;
+  el.className='timer-val'+(timerSecs<=60?' urgent':'');
+  const pct=timerTotal>0?(timerSecs/timerTotal)*100:0;
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+// Export
+function buildExportText(){
+  const all=allCards().sort((a,b)=>b.votes-a.votes);
+  const date=document.getElementById('sessionDate').value||'—';
+  const fac=document.getElementById('facilitator').value||'—';
+  let txt=`CI BRAINSTORM SESSION SUMMARY\nDate: ${date}\nFacilitator: ${fac}\n${'='.repeat(55)}\n\n`;
+  SECTIONS.forEach(s=>{
+    const sc=all.filter(c=>c.sid===s.id);
+    if(!sc.length) return;
+    txt+=`${s.label.toUpperCase()}\n${'-'.repeat(45)}\n`;
+    sc.forEach(c=>{
+      const cat=getCat(c.cat);
+      txt+=`[${priLabel(c.votes).padEnd(6)}] [${String(c.votes).padStart(2,' ')} votes]  ${c.text}\n`;
+      txt+=`   Category: ${cat?cat.label:'Uncategorised'}  |  By: ${c.author}${c.owner?'  |  Owner: '+c.owner:''}\n\n`;
+    });
+  });
+  txt+=`\nBY CATEGORY\n${'='.repeat(55)}\n`;
+  CATS.forEach(cat=>{
+    const sc=all.filter(c=>c.cat===cat.id);
+    if(!sc.length) return;
+    txt+=`\n${cat.label} (${sc.length} ideas)\n${'-'.repeat(35)}\n`;
+    sc.forEach(c=>txt+=`  • [${priLabel(c.votes)}] ${c.text}${c.owner?' → '+c.owner:''}\n`);
+  });
+  return txt;
+}
+
+function exportSummary(){
+  const blob=new Blob([buildExportText()],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='CI_Brainstorm_Summary.txt';
+  a.click();
+  showToast('Exported as .txt');
+}
+
+function exportCSV(){
+  const all=allCards().sort((a,b)=>b.votes-a.votes);
+  const date=document.getElementById('sessionDate').value||'';
+  let csv='Text,Category,Prompt,Priority,Votes,Author,Owner,Session Date\n';
+  all.forEach(c=>{
+    const cat=getCat(c.cat);
+    const sec=SECTIONS.find(s=>s.id===c.sid);
+    const row=[c.text,cat?cat.label:'',sec?sec.label:'',priLabel(c.votes),c.votes,c.author,c.owner,date];
+    csv+=row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')+'\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='CI_Brainstorm_Session.csv';
+  a.click();
+  showToast('Exported as .csv');
+}
+
+function copyToClipboard(){
+  navigator.clipboard.writeText(buildExportText()).then(()=>showToast('Copied to clipboard!'));
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+  renderMemberSelect();
+  renderSections();
+  updateStats();
+});
+</script>
+</body>
+</html>
